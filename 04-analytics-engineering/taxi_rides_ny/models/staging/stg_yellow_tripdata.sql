@@ -2,24 +2,24 @@
 
 with
     tripdata as (
-        select *, row_number() over (partition by vendor_id, pickup_datetime) as rn
+        select *, row_number() over (partition by VendorID, tpep_pickup_datetime) as rn
         from {{ source("staging", "yellow_data") }}
-        where vendor_id is not null
+        where VendorID is not null
     )
 select
     -- identifiers
-    {{ dbt_utils.generate_surrogate_key(["vendor_id", "pickup_datetime"]) }} as tripid,
-    {{ dbt.safe_cast("vendor_id", api.Column.translate_type("integer")) }} as vendorid,
-    {{ dbt.safe_cast("rate_code", api.Column.translate_type("integer")) }}
+    {{ dbt_utils.generate_surrogate_key(["VendorID", "tpep_pickup_datetime"]) }} as tripid,
+    {{ dbt.safe_cast("VendorID", api.Column.translate_type("integer")) }} as vendorid,
+    {{ dbt.safe_cast("RatecodeID", api.Column.translate_type("integer")) }}
     as ratecodeid,
-    {{ dbt.safe_cast("pickup_location_id", api.Column.translate_type("integer")) }}
+    {{ dbt.safe_cast("PULocationID", api.Column.translate_type("integer")) }}
     as pickup_locationid,
-    {{ dbt.safe_cast("dropoff_location_id", api.Column.translate_type("integer")) }}
+    {{ dbt.safe_cast("DOLocationID", api.Column.translate_type("integer")) }}
     as dropoff_locationid,
 
     -- timestamps
-    cast(pickup_datetime as timestamp) as pickup_datetime,
-    cast(dropoff_datetime as timestamp) as dropoff_datetime,
+    cast(tpep_pickup_datetime as timestamp) as pickup_datetime,
+    cast(tpep_dropoff_datetime as timestamp) as dropoff_datetime,
 
     -- trip info
     store_and_fwd_flag,
@@ -36,7 +36,7 @@ select
     cast(tip_amount as numeric) as tip_amount,
     cast(tolls_amount as numeric) as tolls_amount,
     cast(0 as numeric) as ehail_fee,
-    cast(imp_surcharge as numeric) as improvement_surcharge,
+    cast(improvement_surcharge as numeric) as improvement_surcharge,
     cast(total_amount as numeric) as total_amount,
     coalesce(
         {{ dbt.safe_cast("payment_type", api.Column.translate_type("integer")) }}, 0

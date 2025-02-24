@@ -3,7 +3,7 @@ version: 2
 sources:
   - name: staging
     database: dtc-de-course-447715
-    schema: taxi_data
+    schema: airflow_data
 
     tables:
       - name: green_data
