@@ -7,7 +7,7 @@
 with dim_fhv_trips_timestamp_diff as(
     select 
         *,
-        TIMESTAMP_DIFF(pickup_datetime, dropoff_datetime, MINUTE) as trip_duration
+        TIMESTAMP_DIFF(dropoff_datetime, pickup_datetime, SECOND) as trip_duration
     from {{ ref('dim_fhv_trips') }}
 ),
 
