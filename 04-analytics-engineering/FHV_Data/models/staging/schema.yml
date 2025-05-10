@@ -1,0 +1,65 @@
+version: 2
+
+sources:
+  - name: staging
+    database: dtc-de-course-447715
+    schema: airflow_data
+
+    tables:
+      - name: fhv_2019
+
+models:
+  - name: stg_fhv
+    description: ""
+    columns:
+      - name: unique_row_id
+        data_type: bytes
+        description: ""
+        tests:
+          - unique:
+              severity: warn
+          - not_null:
+              severity: warn
+
+      - name: filename
+        data_type: string
+        description: ""
+
+      - name: dispatching_base_num
+        data_type: string
+        description: ""
+
+      - name: pickup_datetime
+        data_type: timestamp
+        description: ""
+
+      - name: dropoff_datetime
+        data_type: timestamp
+        description: ""
+
+      - name: PUlocationID
+        data_type: int64
+        description: ""
+        tests:
+          - relationships:
+              field: locationid
+              to: ref('taxi_zone_lookup')
+              severity: warn
+
+      - name: DOlocationID
+        data_type: int64
+        description: ""
+        tests:
+          - relationships:
+              field: locationid
+              to: ref('taxi_zone_lookup')
+              severity: warn
+
+      - name: SR_Flag
+        data_type: int64
+        description: ""
+
+      - name: Affiliated_base_number
+        data_type: string
+        description: ""
+

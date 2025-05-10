@@ -7,21 +7,21 @@
 with tripdata as 
 (
   select *,
-    row_number() over(partition by vendor_id, pickup_datetime) as rn
+    row_number() over(partition by VendorID, lpep_pickup_datetime) as rn
   from {{ source('staging','green_data') }}
-  where vendor_id is not null 
+  where VendorID is not null 
 )
 select
     -- identifiers
-    {{ dbt_utils.generate_surrogate_key(['vendor_id', 'pickup_datetime']) }} as tripid,
-    {{ dbt.safe_cast("vendor_id", api.Column.translate_type("integer")) }} as vendorid,
-    {{ dbt.safe_cast("rate_code", api.Column.translate_type("integer")) }} as ratecodeid,
-    {{ dbt.safe_cast("pickup_location_id", api.Column.translate_type("integer")) }} as pickup_locationid,
-    {{ dbt.safe_cast("pickup_location_id", api.Column.translate_type("integer")) }} as dropoff_locationid,
+    {{ dbt_utils.generate_surrogate_key(['VendorID', 'lpep_pickup_datetime']) }} as tripid,
+    {{ dbt.safe_cast("VendorID", api.Column.translate_type("integer")) }} as vendorid,
+    {{ dbt.safe_cast("RatecodeID", api.Column.translate_type("integer")) }} as ratecodeid,
+    {{ dbt.safe_cast("PULocationID", api.Column.translate_type("integer")) }} as pickup_locationid,
+    {{ dbt.safe_cast("PULocationID", api.Column.translate_type("integer")) }} as dropoff_locationid,
     
     -- timestamps
-    cast(pickup_datetime as timestamp) as pickup_datetime,
-    cast(dropoff_datetime as timestamp) as dropoff_datetime,
+    cast(lpep_pickup_datetime as timestamp) as pickup_datetime,
+    cast(lpep_dropoff_datetime as timestamp) as dropoff_datetime,
     
     -- trip info
     store_and_fwd_flag,
@@ -36,7 +36,7 @@ select
     cast(tip_amount as numeric) as tip_amount,
     cast(tolls_amount as numeric) as tolls_amount,
     cast(ehail_fee as numeric) as ehail_fee,
-    cast(imp_surcharge as numeric) as improvement_surcharge,
+    cast(PULocationID as numeric) as improvement_surcharge,
     cast(total_amount as numeric) as total_amount,
     coalesce({{ dbt.safe_cast("payment_type", api.Column.translate_type("integer")) }},0) as payment_type,
     {{ get_payment_type_description("payment_type") }} as payment_type_description
@@ -47,6 +47,6 @@ where rn = 1
 -- dbt build --select <model_name> --vars '{'is_test_run': 'false'}'
 {% if var('is_test_run', default=true) %}
 
-  limit 100
+  limit 10000
 
 {% endif %}
